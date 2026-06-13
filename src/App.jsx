@@ -119,7 +119,6 @@ export default function App() {
   if (screen === 'setup-players') return (
     <div className="setup-card">
       <div className="game-title">🎲 Dice Dash</div>
-      <div className="game-subtitle">by Cindy &amp; Stella · June 2023</div>
       <div className="setup-heading">How many players?</div>
       <div className="input-row">
         <label>Players (2–4):</label>
