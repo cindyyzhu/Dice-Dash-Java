@@ -132,6 +132,7 @@ export default function App() {
         />
       </div>
       <button className="btn" onClick={handleNumPlayersNext}>Next →</button>
+      <footer className="footer"> Made with <span className="heart">♥</span> by Cindy Zhu 2026 </footer>
     </div>
   );
 
@@ -250,5 +251,9 @@ export default function App() {
     </div>
   );
 
-  return null;
+  return (
+    <footer className="footer">
+      Made with <span className="heart">♥</span> by Cindy Zhu 2026
+    </footer>
+  );
 }
