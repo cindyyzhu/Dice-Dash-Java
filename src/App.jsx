@@ -54,7 +54,6 @@ export default function App() {
     if (rolling || minigame || winner) return;
     setRolling(true);
 
-    // brief animation
     let count = 0;
     rollAnim.current = setInterval(() => {
       setLastRoll(Math.floor(Math.random() * 6) + 1);
@@ -64,46 +63,41 @@ export default function App() {
         const finalRoll = Math.floor(Math.random() * 6) + 1;
         setLastRoll(finalRoll);
         setRolling(false);
-        movePlayer(currentPlayer, finalRoll, finalRoll);
+        movePlayer(currentPlayer, finalRoll);
       }
     }, 80);
   }
 
-  function movePlayer(pi, roll, diceNum) {
-    setPlayerPositions(prev => {
-      const next = [...prev];
-      const cur = next[pi] < 1 ? 0 : next[pi];
-      let newPos = cur + roll;
-      if (newPos > 25) newPos = 25;
-      next[pi] = newPos;
+  function movePlayer(pi, roll) {
+    // Compute new position outside setState to avoid stale closures
+    const cur = playerPositions[pi] < 1 ? 0 : playerPositions[pi];
+    let newPos = Math.min(cur + roll, 25);
 
-      // check win
-      if (newPos >= 25) {
-        setTimeout(() => setWinner(playerNames[pi]), 100);
-        return next;
-      }
+    const nextPositions = [...playerPositions];
+    nextPositions[pi] = newPos;
+    setPlayerPositions(nextPositions);
 
-      // check minigame
-      if (newPos === 10) {
-        setTimeout(() => setMinigame('tictactoe'), 200);
-      } else if (newPos === 20) {
-        setTimeout(() => setMinigame('numberguess'), 200);
-      }
+    if (newPos >= 25) {
+      setWinner(playerNames[pi]);
+      return;
+    }
 
-      // advance turn (after possible minigame)
-      const nextPlayer = (pi + 1) % playerNames.length;
-      setTimeout(() => setCurrentPlayer(nextPlayer), minigame ? 0 : 100);
-
-      return next;
-    });
-
-    // advance turn now if no minigame triggered
-    // (handled inside setState via setTimeout above)
+    // Trigger minigame if landing on special square — advance turn only after close
+    if (newPos === 10) {
+      setMinigame('tictactoe');
+    } else if (newPos === 20) {
+      setMinigame('numberguess');
+    } else {
+      // No minigame — advance turn immediately
+      setCurrentPlayer((pi + 1) % playerNames.length);
+    }
   }
 
   function handleMinigameClose() {
+    // Capture currentPlayer before clearing minigame
+    const next = (currentPlayer + 1) % playerNames.length;
     setMinigame(null);
-    setCurrentPlayer(p => (p + 1) % playerNames.length);
+    setCurrentPlayer(next);
   }
 
   function resetAll() {
